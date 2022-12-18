@@ -5,7 +5,7 @@ The script records and plots price data from Instacart for Aldi, Kroger, and Wal
 
 The "Item_List.csv" file contains each respective item's url for the script to navigate the browser too. 
 
-##Requirements: 
+Requirements: 
 Install python 3. 
 
 Install the following with pip: 
