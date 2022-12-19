@@ -23,13 +23,18 @@ KROGER_PRICE_CLASS = ["css-1u4ofbf"]
 WALMART_MAIN_WEB_PAGE = "https://www.instacart.com/store/walmart/storefront"
 WALMART_PRICE_CLASS = ["css-1u4ofbf"]
 
+#*** Ruler ***
+RULER_MAIN_WEB_PAGE = "https://www.instacart.com/store/ruler-foods/storefront"
+RULER_PRICE_CLASS = ["css-1u4ofbf"]
+
+
 def Read_Store_Info(_Store_Name): # Get the store info
-    _All_Store_Data = pd.read_csv("Database.csv") # Read in the csv to a dataframe
+    _All_Store_Data = pd.read_csv("Item_List.csv") # Read in the csv to a dataframe
     # Remove all data not applicable to our store
     for Col_Name in _All_Store_Data.columns:
         if (Col_Name[0:len(_Store_Name)] != _Store_Name) and (Col_Name != "Category"): # Look for the store name and if its not the Category column
             _All_Store_Data = _All_Store_Data.drop(columns = Col_Name) # Drop the stores not used
-    _All_Store_Data.insert(3,"Price",[None] * len(_All_Store_Data),True) # Add Price Column
+    _All_Store_Data.insert(4,"Price",[None] * len(_All_Store_Data),True) # Add Price Column
     return _All_Store_Data
 
 def Find_Item_Price(_Item,_Link,_Class_List): # TODO _Item is for using search bar if not found
@@ -71,7 +76,7 @@ def Store_Data_Extraction(_Store,_Link,_Class):
 
     # Loop through looking for all of the items            
     for Idx, Item in Store_Data.iterrows():
-        Store_Data["Price"].iloc[Idx] = Find_Item_Price(Item[1],Item[2],_Class) # Open the link and extract price
+        Store_Data["Price"].iloc[Idx] = Find_Item_Price(Item[1],Item[2],_Class) * float(Item[3]) # Open the link and extract price. 
     return Store_Data
 
 Results = pd.DataFrame() # Blank DF
@@ -79,15 +84,19 @@ Results = pd.DataFrame() # Blank DF
 # *** Aldi ***
 Temp_Data = Store_Data_Extraction("Aldi",ALDI_MAIN_WEB_PAGE,ALDI_PRICE_CLASS) # Get the prices of items in database
 Results["Category"] = Temp_Data["Category"] # Get the first column of categorys only needed once
-Results["Aldi-Price"] = Temp_Data["Price"]
+Results["Aldi-Price"] = Temp_Data["Price"] # Store the price
 
 # #*** Kroger ***
 Temp_Data = Store_Data_Extraction("Kroger",INSTA_CART_MAIN_WEB_PAGE,KROGER_PRICE_CLASS) # Get the prices of items in database
-Results["Kroger-Price"] = Temp_Data["Price"]
+Results["Kroger-Price"] = Temp_Data["Price"] # Store the price
 
 # # *** Walmart ***
 Temp_Data = Store_Data_Extraction("Walmart",WALMART_MAIN_WEB_PAGE,WALMART_PRICE_CLASS) # Get the prices of items in database
-Results["Walmart-Price"] = Temp_Data["Price"] # Get the first column of categorys only needed once
+Results["Walmart-Price"] = Temp_Data["Price"] # Store the price
+
+# # *** Ruler ***
+Temp_Data = Store_Data_Extraction("Ruler",RULER_MAIN_WEB_PAGE,RULER_PRICE_CLASS) # Get the prices of items in database
+Results["Ruler-Price"] = Temp_Data["Price"] # Store the price
 
 # *** Store results ***
 Current_DT = datetime.now().strftime("%Y%m%d%H%M")  # Filename
@@ -122,6 +131,12 @@ Plot = px.Figure(
     x = Results["Category"],
     y = Results["Walmart-Price"],
     marker = dict(color="Blue")
+   ),
+    px.Bar(
+    name = 'Ruler',
+    x = Results["Category"],
+    y = Results["Ruler-Price"],
+    marker = dict(color="Green")
    )
 ])
 Plot.update_traces(marker_line_color = 'black', marker_line_width = 2)
