@@ -1,5 +1,5 @@
 # Grocery-Web-Scraping
-Scrap price data on items from Aldi, Kroger, and Walmart 
+Scrape price data on items from Aldi, Kroger, and Walmart 
 
 The script records and plots price data from Instacart for Aldi, Kroger, Walmart, and Ruler Foods. 
 
